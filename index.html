@@ -262,14 +262,6 @@
       <h2>Cómo Jugar</h2>
       <p>Eres un superviviente atrapado en una instalación con un alienígena hostil. Tu objetivo es llegar al punto de extracción (marcado en verde) sin ser detectado.</p>
       
-      <h3>Controles:</h3>
-      <ul style="text-align: left;">
-        <li>Flechas o WASD: Mover al personaje</li>
-        <li>Shift: Correr (usa la barra de estamina)</li>
-        <li>ESC: Pausar el juego</li>
-        <li>Áreas sombreadas: Escondites (el alien no puede verte)</li>
-      </ul>
-      
       <h3>Comportamiento del Alien:</h3>
       <ul style="text-align: left;">
         <li><span style="color: #00ff00;">PATROLLING</span>: El alien se mueve por rutas predefinidas</li>
@@ -383,7 +375,8 @@
     });
   </script>
   
-  <!-- Game Script -->
-  <script src="game.js"></script>
+  <!-- Game Scripts - Usando módulos ES6 -->
+  <script type="module" src="map.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>
