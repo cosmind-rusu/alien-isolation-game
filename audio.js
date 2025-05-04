@@ -3,7 +3,7 @@
 // Inicializar efectos de sonido
 export function initAudio() {
     const sounds = {
-      footstep: new Audio('https://assets.codepen.io/21542/footstep2.mp3'),
+      footstep: new Audio('footstep.mp3'),
       alienScream: new Audio('https://assets.codepen.io/21542/alien.mp3'),
       heartbeat: new Audio('https://assets.codepen.io/21542/heartbeat.mp3'),
       victory: new Audio('https://assets.codepen.io/21542/level-complete.mp3'),
