@@ -136,19 +136,36 @@ const alien = {
   currentPatrolIndex: 0,
   lastKnownPlayerPos: null,
   searchRadius: 3,
-  detectionRange: 150,
-  sightRange: 200,
+  detectionRange: 170,       // Increased detection range
+  sightRange: 220,          // Increased sight range
   alertLevel: 0,
   maxAlertLevel: 100,
-  alertDecayRate: 0.2,
-  investigationTime: 180,
+  alertDecayRate: 0.15,      // Slower alert decay rate
+  investigationTime: 220,    // Longer investigation time
   stateTimer: 0,
   animation: {
     frame: 0,
     maxFrames: 8,
     frameSpeed: 5,
     frameCounter: 0
-  }
+  },
+  // New AI behavior properties
+  senses: {
+    vision: true,
+    hearing: true,
+    memory: true
+  },
+  memory: [],
+  memoryCapacity: 5,         // Remember last 5 player positions
+  predictionSkill: 0.7,      // 0.0 to 1.0, higher means better at predicting player movement
+  patrolMode: 'adaptive',    // 'fixed' or 'adaptive'
+  areaMemory: [],            // Remember areas where player was spotted
+  hunterMode: false,         // Special mode where alien actively hunts the player
+  hunterModeTimer: 0,
+  hunterModeDuration: 600,   // 10 seconds in hunter mode
+  hunterModeCooldown: 1800,  // 30 seconds cooldown between hunter modes
+  hunterModeCooldownTimer: 0,
+  hunterModeChance: 0.2      // 20% chance to enter hunter mode when alerted
 };
 
 // Possible goal spawn points
@@ -718,11 +735,24 @@ function drawUI() {
                  alien.state === 'investigating' ? 'rgba(255,255,0,0.7)' : 'rgba(255,0,0,0.7)';
   ctx.fillText(`Alien: ${alien.state.toUpperCase()}`, canvas.width - 150, 30);
   
+  // Display hunter mode if active
+  if (alien.hunterMode) {
+    ctx.font = '14px Arial';
+    ctx.fillStyle = 'rgba(255,0,0,0.9)';
+    ctx.fillText('¡MODO CAZADOR ACTIVO!', canvas.width - 200, 50);
+    
+    // Add pulsing effect
+    if (frameCount % 30 < 15) {
+      ctx.fillStyle = 'rgba(255,0,0,0.3)';
+      ctx.fillRect(canvas.width - 210, 35, 200, 20);
+    }
+  }
+  
   // Display difficulty level
   ctx.font = '14px Arial';
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   const difficultyText = difficulty === 1 ? 'FÁCIL' : difficulty === 2 ? 'NORMAL' : 'DIFÍCIL';
-  ctx.fillText(`Dificultad: ${difficultyText}`, canvas.width - 150, 50);
+  ctx.fillText(`Dificultad: ${difficultyText}`, canvas.width - 150, alien.hunterMode ? 70 : 50);
   
   // Display goal direction indicator
   const dirX = goal.x - player.x;
@@ -1059,9 +1089,48 @@ function gameLoop() {
       // Draw alien with effect based on state
       const alienColor = alien.state === 'patrolling' ? 'rgba(255,100,100,0.8)' : 
                         alien.state === 'investigating' ? 'rgba(255,150,0,0.8)' : 'red';
-      const alienGlow = alien.state === 'hunting' ? 'rgba(255,0,0,0.3)' : 'rgba(200,0,0,0.1)';
-      const alienPulse = alien.state === 'hunting' ? Math.sin(frameCount * 0.2) * 2 : 0;
+      const alienGlow = alien.state === 'hunting' ? 
+                       (alien.hunterMode ? 'rgba(255,0,0,0.5)' : 'rgba(255,0,0,0.3)') : 
+                       'rgba(200,0,0,0.1)';
+      
+      // Make alien pulse more intensely in hunter mode
+      const alienPulse = alien.hunterMode ? 
+                        Math.sin(frameCount * 0.3) * 3 + 1 : 
+                        (alien.state === 'hunting' ? Math.sin(frameCount * 0.2) * 2 : 0);
+      
+      // Draw the alien
       drawCircle(alien.x, alien.y, alien.r, alienColor, alienPulse, alienGlow);
+      
+      // Add "vision cone" for alien when hunting
+      if (alien.state === 'hunting' || alien.hunterMode) {
+        const visionAngle = Math.atan2(
+          alien.path && alien.pathIndex < alien.path.length ? 
+          alien.path[alien.pathIndex].y * TILE_SIZE - alien.y : 
+          player.y - alien.y, 
+          alien.path && alien.pathIndex < alien.path.length ? 
+          alien.path[alien.pathIndex].x * TILE_SIZE - alien.x : 
+          player.x - alien.x
+        );
+        
+        ctx.save();
+        ctx.translate(alien.x, alien.y);
+        ctx.rotate(visionAngle);
+        
+        // Create a gradient for the vision cone
+        const coneGradient = ctx.createRadialGradient(0, 0, 10, 0, 0, alien.hunterMode ? 170 : 120);
+        coneGradient.addColorStop(0, alien.hunterMode ? 'rgba(255,0,0,0.4)' : 'rgba(255,50,50,0.3)');
+        coneGradient.addColorStop(1, 'rgba(255,0,0,0)');
+        
+        // Draw the vision cone
+        ctx.fillStyle = coneGradient;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, alien.hunterMode ? 170 : 120, -Math.PI/4, Math.PI/4);
+        ctx.closePath();
+        ctx.fill();
+        
+        ctx.restore();
+      }
       
       // Update and draw particles
       updateParticles();
