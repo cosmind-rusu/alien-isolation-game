@@ -624,11 +624,17 @@
         <span class="difficulty-btn" id="easyBtn">Fácil</span>
         <span class="difficulty-btn active" id="mediumBtn">Normal</span>
         <span class="difficulty-btn" id="hardBtn">Difícil</span>
+        
       </div>
       
       <button id="muteBtn">
         <span>Sonido: ON</span>
       </button>
+
+      <button id="trollBtn">
+        <span>¿Botón secreto?</span>
+      </button>
+      
     </div>
     
     <div class="game-wrapper">
@@ -656,6 +662,11 @@
     <div class="game-info">
       v1.2.0 | Controles: Flechas/WASD para moverse, SHIFT para correr, ESC para pausar
     </div>
+    <div id="screamer" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: black; z-index: 9999; align-items: center; justify-content: center; flex-direction: column;">
+      <img src="https://us-tuna-sounds-images.voicemod.net/88463959-b331-4a6a-b9ee-9843ec1a9229-1665760464118.png" alt="SCREAMER" style="max-width: 100%; max-height: 100%;">
+      <audio id="screamerAudio" src="audio/screemer.mp3"></audio>
+    </div>
+    
   </div>
   
   <!-- Help Modal -->
@@ -926,6 +937,7 @@
   <script type="module" src="alien.js"></script>
   <script type="module" src="goal.js"></script>
   <script type="module" src="ui.js"></script>
+  <script type="module" src="troll.js"></script>
   <script type="module" src="game_main.js"></script>
 </body>
 </html>
