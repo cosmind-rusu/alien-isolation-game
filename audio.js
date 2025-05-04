@@ -4,12 +4,12 @@
 export function initAudio() {
     const sounds = {
       footstep: new Audio('footstep.mp3'),
-      alienScream: new Audio('https://assets.codepen.io/21542/alien.mp3'),
-      heartbeat: new Audio('https://assets.codepen.io/21542/heartbeat.mp3'),
-      victory: new Audio('https://assets.codepen.io/21542/level-complete.mp3'),
-      death: new Audio('https://assets.codepen.io/21542/death.mp3'),
-      ambience: new Audio('https://assets.codepen.io/21542/space-ambience.mp3'),
-      menu: new Audio('https://assets.codepen.io/21542/menu-ambience.mp3')
+      alienScream: new Audio('alienScream.mp3'),
+      heartbeat: new Audio('heartbeat.wav'),
+      victory: new Audio('victory.mp3'),
+      death: new Audio('death.wav'),
+      ambience: new Audio('ambience.mp3'),
+      menu: new Audio('menu.wav')
     };
     
     // Configurar propiedades de sonido
