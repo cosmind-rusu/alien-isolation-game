@@ -36,7 +36,7 @@ import {
   
   // Variables del juego
   let gameState = GAME_STATES.MENU;
-  let difficulty = 1; // 1-3: Fácil, Normal, Difícil
+  let difficulty = 2; // 1-3: Fácil, Normal, Difícil
   let score = 0;
   let gameTime = 0;
   let frameCount = 0;
