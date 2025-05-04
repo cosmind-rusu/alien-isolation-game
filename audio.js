@@ -3,13 +3,13 @@
 // Inicializar efectos de sonido
 export function initAudio() {
     const sounds = {
-      footstep: new Audio('footstep.mp3'),
-      alienScream: new Audio('alienScream.mp3'),
-      heartbeat: new Audio('heartbeat.wav'),
-      victory: new Audio('victory.mp3'),
-      death: new Audio('death.wav'),
-      ambience: new Audio('ambience.mp3'),
-      menu: new Audio('menu.wav')
+      footstep: new Audio('audio/footstep.mp3'),
+      alienScream: new Audio('audio/alienScream.mp3'),
+      heartbeat: new Audio('audio/heartbeat.wav'),
+      victory: new Audio('audio/victory.mp3'),
+      death: new Audio('audio/death.wav'),
+      ambience: new Audio('audio/ambience.mp3'),
+      menu: new Audio('audio/menu.wav')
     };
     
     // Configurar propiedades de sonido
