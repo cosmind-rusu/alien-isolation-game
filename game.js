@@ -112,8 +112,8 @@ const alien = {
   x: 28 * TILE_SIZE + TILE_SIZE / 2,
   y: 3 * TILE_SIZE + TILE_SIZE / 2,
   r: 10,
-  baseSpeed: 1.4,
-  speed: 1.4,
+  baseSpeed: 1.6,     // Increased base speed
+  speed: 1.6,         // Increased initial speed
   state: 'patrolling',
   previousStates: [],
   path: [],
@@ -151,10 +151,19 @@ const alien = {
   }
 };
 
+// Possible goal spawn points
+const goalSpawnPoints = [
+  { x: 28, y: 1 },   // Top-right corner
+  { x: 3, y: 18 },   // Bottom-left area
+  { x: 26, y: 16 },  // Bottom-right area
+  { x: 15, y: 3 },   // Upper-middle area
+  { x: 1, y: 10 }    // Left-middle area
+];
+
 // Goal entity
 const goal = {
-  x: 28 * TILE_SIZE + TILE_SIZE / 2,
-  y: 2 * TILE_SIZE + TILE_SIZE / 2,
+  x: 0,
+  y: 0,
   r: 12,
   pulseSize: 0,
   pulseDirection: 1
@@ -451,7 +460,7 @@ function moveAlien() {
       }
       
       // Increase alien speed when hunting
-      alien.speed = alien.baseSpeed * (1.2 + (difficulty * 0.1));
+      alien.speed = alien.baseSpeed * (1.4 + (difficulty * 0.15));
       break;
   }
   
@@ -709,6 +718,33 @@ function drawUI() {
                  alien.state === 'investigating' ? 'rgba(255,255,0,0.7)' : 'rgba(255,0,0,0.7)';
   ctx.fillText(`Alien: ${alien.state.toUpperCase()}`, canvas.width - 150, 30);
   
+  // Display difficulty level
+  ctx.font = '14px Arial';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  const difficultyText = difficulty === 1 ? 'FÁCIL' : difficulty === 2 ? 'NORMAL' : 'DIFÍCIL';
+  ctx.fillText(`Dificultad: ${difficultyText}`, canvas.width - 150, 50);
+  
+  // Display goal direction indicator
+  const dirX = goal.x - player.x;
+  const dirY = goal.y - player.y;
+  const angle = Math.atan2(dirY, dirX);
+  
+  // Draw direction arrow
+  ctx.save();
+  ctx.translate(70, 50);
+  ctx.rotate(angle);
+  ctx.fillStyle = 'rgba(0,255,100,0.7)';
+  ctx.beginPath();
+  ctx.moveTo(15, 0);
+  ctx.lineTo(0, 5);
+  ctx.lineTo(0, -5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+  
+  ctx.fillStyle = 'rgba(0,255,100,0.7)';
+  ctx.fillText('META', 50, 30);
+  
   // Display hiding status
   if (player.hidden) {
     ctx.font = '16px Arial';
@@ -896,6 +932,15 @@ function findPath(start, goal, map) {
   return [];
 }
 
+// Set a random goal position
+function setRandomGoalPosition() {
+  const randomIndex = Math.floor(Math.random() * goalSpawnPoints.length);
+  const spawnPoint = goalSpawnPoints[randomIndex];
+  
+  goal.x = spawnPoint.x * TILE_SIZE + TILE_SIZE / 2;
+  goal.y = spawnPoint.y * TILE_SIZE + TILE_SIZE / 2;
+}
+
 // Reset the game to initial state
 function resetGame() {
   // Reset player
@@ -916,6 +961,18 @@ function resetGame() {
   alien.recalcTimer = 0;
   alien.currentPatrolIndex = 0;
   alien.alertLevel = 0;
+  
+  // Set alien speed based on difficulty
+  alien.baseSpeed = 1.6 + (difficulty * 0.15);  // Speed increases with difficulty
+  alien.speed = alien.baseSpeed;
+  
+  // Set random goal position
+  setRandomGoalPosition();
+  
+  // Reset game state
+  gameState = GAME_STATES.PLAYING;
+  gameTime = 0;
+  resetBtn.style.display = 'none';
   
   // Reset game state
   gameState = GAME_STATES.PLAYING;
@@ -1065,6 +1122,7 @@ function gameLoop() {
 
 // Initialize and start the game
 resetGame();
+setRandomGoalPosition(); // Set initial goal position
 gameState = GAME_STATES.MENU;
 
 // Initialize global sound mute status
