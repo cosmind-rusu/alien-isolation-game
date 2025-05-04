@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Alien Isolation - Mapa con IA</title>
+  <style>
+    body {
+      background-color: #050510;
+      color: #e0e0ff;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    
+    .container {
+      position: relative;
+      margin: 0 auto;
+    }
+    
+    canvas {
+      background: #0a0a15;
+      display: block;
+      margin: 0 auto;
+      border: 3px solid #223344;
+      box-shadow: 0 0 20px rgba(0, 180, 255, 0.15);
+    }
+    
+    .title {
+      font-size: 2.5rem;
+      margin: 10px 0;
+      text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+      letter-spacing: 2px;
+    }
+    
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+    
+    button {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      padding: 8px 16px;
+      background-color: #112233;
+      color: #e0e0ff;
+      border: 1px solid #334455;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 5px rgba(0, 150, 255, 0.2);
+    }
+    
+    button:hover {
+      background-color: #223344;
+      box-shadow: 0 0 10px rgba(0, 150, 255, 0.4);
+    }
+    
+    .difficulty-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .difficulty-label {
+      font-size: 14px;
+    }
+    
+    .difficulty-btn {
+      background-color: #112233;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .difficulty-btn.active {
+      background-color: #00aaff;
+      color: #000;
+    }
+    
+    .game-info {
+      position: absolute;
+      bottom: 5px;
+      left: 5px;
+      font-size: 12px;
+      color: #aaaaaa;
+      text-align: left;
+    }
+    
+    .help-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 20px;
+      cursor: pointer;
+      background-color: #112233;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .help-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .help-content {
+      background-color: #0a0a15;
+      border: 2px solid #334455;
+      padding: 20px;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 150, 255, 0.3);
+    }
+    
+    .close-help {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #aaaaaa;
+    }
+    
+    .close-help:hover {
+      color: #ffffff;
+    }
+    
+    /* Overlay screens */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    
+    /* Scanning effect */
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: rgba(0, 200, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 200, 255, 0.8);
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes scan {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+    
+    /* Loading animation */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #050510;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .loading-text {
+      margin-top: 20px;
+      font-size: 1.5rem;
+      letter-spacing: 2px;
+    }
+    
+    .loading-bar {
+      width: 300px;
+      height: 20px;
+      background-color: #112233;
+      margin-top: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .loading-progress {
+      height: 100%;
+      width: 0%;
+      background-color: #00aaff;
+      transition: width 0.5s ease;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading" id="loadingScreen">
+    <h1>ALIEN ISOLATION</h1>
+    <div class="loading-text">Inicializando sistemas...</div>
+    <div class="loading-bar">
+      <div class="loading-progress" id="loadingBar"></div>
+    </div>
+  </div>
+  
+  <!-- Main Game Container -->
+  <div class="container">
+    <h1 class="title">ALIEN ISOLATION</h1>
+    
+    <div class="controls">
+      <button id="resetBtn">Reiniciar</button>
+      
+      <div class="difficulty-selector">
+        <span class="difficulty-label">Dificultad:</span>
+        <span class="difficulty-btn" id="easyBtn">Fácil</span>
+        <span class="difficulty-btn active" id="mediumBtn">Normal</span>
+        <span class="difficulty-btn" id="hardBtn">Difícil</span>
+      </div>
+      
+      <button id="muteBtn">Sonido: ON</button>
+    </div>
+    
+    <div class="game-wrapper">
+      <canvas id="gameCanvas" width="960" height="640"></canvas>
+      <div class="scan-line"></div>
+      <div class="overlay" id="gameOverlay"></div>
+    </div>
+    
+    <div class="help-icon" id="helpBtn">?</div>
+    
+    <div class="game-info">
+      v1.0.0 | Controles: Flechas/WASD para moverse, SHIFT para correr, ESC para pausar
+    </div>
+  </div>
+  
+  <!-- Help Modal -->
+  <div class="help-modal" id="helpModal">
+    <div class="help-content">
+      <span class="close-help" id="closeHelp">&times;</span>
+      <h2>Cómo Jugar</h2>
+      <p>Eres un superviviente atrapado en una instalación con un alienígena hostil. Tu objetivo es llegar al punto de extracción (marcado en verde) sin ser detectado.</p>
+      
+      <h3>Controles:</h3>
+      <ul style="text-align: left;">
+        <li>Flechas o WASD: Mover al personaje</li>
+        <li>Shift: Correr (usa la barra de estamina)</li>
+        <li>ESC: Pausar el juego</li>
+        <li>Áreas sombreadas: Escondites (el alien no puede verte)</li>
+      </ul>
+      
+      <h3>Comportamiento del Alien:</h3>
+      <ul style="text-align: left;">
+        <li><span style="color: #00ff00;">PATROLLING</span>: El alien se mueve por rutas predefinidas</li>
+        <li><span style="color: #ffff00;">INVESTIGATING</span>: El alien ha oído algo y va a investigar</li>
+        <li><span style="color: #ff0000;">HUNTING</span>: El alien te ha visto y te está persiguiendo</li>
+      </ul>
+      
+      <p>El alien puede verte a corta distancia, especialmente cuando corres. Mantente oculto y muévete con precaución.</p>
+      
+      <h3>Consejos:</h3>
+      <ul style="text-align: left;">
+        <li>Correr hace ruido y agota tu estamina</li>
+        <li>Utiliza los escondites para evitar ser detectado</li>
+        <li>Observa el patrón de movimiento del alien</li>
+        <li>Si el alien te ve, corre hacia un escondite</li>
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    // Simulate loading screen
+    const loadingBar = document.getElementById('loadingBar');
+    const loadingScreen = document.getElementById('loadingScreen');
+    
+    let progress = 0;
+    const loadingInterval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(loadingInterval);
+        setTimeout(() => {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 1s ease';
+          setTimeout(() => {
+            loadingScreen.style.display = 'none';
+          }, 1000);
+        }, 500);
+      }
+      loadingBar.style.width = progress + '%';
+    }, 200);
+    
+    // Help modal functionality
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelp = document.getElementById('closeHelp');
+    
+    helpBtn.addEventListener('click', () => {
+      helpModal.style.display = 'flex';
+    });
+    
+    closeHelp.addEventListener('click', () => {
+      helpModal.style.display = 'none';
+    });
+    
+    // Close modal when clicking outside of it
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) {
+        helpModal.style.display = 'none';
+      }
+    });
+    
+    // Difficulty buttons
+    const easyBtn = document.getElementById('easyBtn');
+    const mediumBtn = document.getElementById('mediumBtn');
+    const hardBtn = document.getElementById('hardBtn');
+    
+    easyBtn.addEventListener('click', () => {
+      setDifficulty(1);
+      updateDifficultyButtons();
+    });
+    
+    mediumBtn.addEventListener('click', () => {
+      setDifficulty(2);
+      updateDifficultyButtons();
+    });
+    
+    hardBtn.addEventListener('click', () => {
+      setDifficulty(3);
+      updateDifficultyButtons();
+    });
+    
+    function updateDifficultyButtons() {
+      easyBtn.classList.remove('active');
+      mediumBtn.classList.remove('active');
+      hardBtn.classList.remove('active');
+      
+      if (window.difficulty === 1) easyBtn.classList.add('active');
+      else if (window.difficulty === 2) mediumBtn.classList.add('active');
+      else if (window.difficulty === 3) hardBtn.classList.add('active');
+    }
+    
+    function setDifficulty(level) {
+      window.difficulty = level;
+      // The game.js script will access this global variable
+    }
+    
+    // Mute button
+    const muteBtn = document.getElementById('muteBtn');
+    let isMuted = false;
+    
+    muteBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      muteBtn.textContent = `Sonido: ${isMuted ? 'OFF' : 'ON'}`;
+      
+      // The sounds will be controlled in game.js
+      window.isMuted = isMuted;
+    });
+  </script>
+  
+  <!-- Game Script -->
+  <script src="game.js"></script>
+</body>
+</html>
