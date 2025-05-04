@@ -267,6 +267,7 @@
         <li><span style="color: #00ff00;">PATROLLING</span>: El alien se mueve por rutas predefinidas</li>
         <li><span style="color: #ffff00;">INVESTIGATING</span>: El alien ha oído algo y va a investigar</li>
         <li><span style="color: #ff0000;">HUNTING</span>: El alien te ha visto y te está persiguiendo</li>
+        <li><span style="color: #660000;">AMBUSHING</span>: El alien está esperando en emboscada para atraparte</li>
         <li><span style="color: #ff0000; font-weight: bold;">MODO CAZADOR</span>: El alien ha entrado en un estado de furia y es más rápido, agresivo y perceptivo. Puede detectarte incluso escondido.</li>
       </ul>
       
@@ -281,6 +282,7 @@
         <li>El alien es más inteligente en dificultades más altas</li>
         <li>Cuando el alien entre en Modo Cazador, mantente completamente escondido y quieto</li>
         <li>Cambia de escondite regularmente para no ser predecible</li>
+        <li>Ten cuidado con las emboscadas del alien, especialmente cerca de la meta</li>
       </ul>
     </div>
   </div>
@@ -357,11 +359,6 @@
       else if (window.difficulty === 3) hardBtn.classList.add('active');
     }
     
-    function setDifficulty(level) {
-      window.difficulty = level;
-      // The game.js script will access this global variable
-    }
-    
     // Mute button
     const muteBtn = document.getElementById('muteBtn');
     let isMuted = false;
@@ -370,13 +367,19 @@
       isMuted = !isMuted;
       muteBtn.textContent = `Sonido: ${isMuted ? 'OFF' : 'ON'}`;
       
-      // The sounds will be controlled in game.js
+      // Actualizar estado global de silencio
       window.isMuted = isMuted;
     });
   </script>
   
   <!-- Game Scripts - Usando módulos ES6 -->
   <script type="module" src="map.js"></script>
-  <script type="module" src="game.js"></script>
+  <script type="module" src="effects.js"></script>
+  <script type="module" src="audio.js"></script>
+  <script type="module" src="player.js"></script>
+  <script type="module" src="alien.js"></script>
+  <script type="module" src="goal.js"></script>
+  <script type="module" src="ui.js"></script>
+  <script type="module" src="game_main.js"></script>
 </body>
 </html>
