@@ -44,7 +44,7 @@ import {
         memory: true
       },
       memory: [],
-      memoryCapacity: 5,         // Recordar las últimas 5 posiciones del jugador
+      memoryCapacity: 8,         // Recordar las últimas 5 posiciones del jugador
       predictionSkill: 0.7,      // 0.0 a 1.0, mayor significa mejor predicción de movimiento
       patrolMode: 'adaptive',    // 'fixed' o 'adaptive'
       areaMemory: [],            // Recordar áreas donde se vio al jugador
